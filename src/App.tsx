@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Tower } from "./components/Tower";
 import { Disc } from "./components/Disc";
 
-const INITIAL_STATE = [[1, 2, 3, 4], [], []];
+const INITIAL_STATE = [[1, 2, 3, 4, 5], [], []];
 
 function App() {
   const [moves, setMoves] = useState(0);
@@ -60,7 +60,7 @@ function App() {
   return (
     <div className="h-screen w-screen bg-zinc-900 text-gray-200 flex flex-col items-center gap-10">
       <div className="text-center px-4 py-10">
-        <h1 className="text-2xl">Torre de Hanoi</h1>
+        <h1 className="text-2xl">Torre de Hanói</h1>
         <p>O objetivo deste jogo e mover todos os discos para outra torre</p>
         <p className="text-sm text-zinc-400">
           Você não pode colocar um{" "}
