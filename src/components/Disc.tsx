@@ -5,16 +5,19 @@ interface Props
     ButtonHTMLAttributes<HTMLButtonElement>,
     HTMLButtonElement
   > {
-  disc: number;
-  draggable?: boolean;
+  disc: {
+    id: number;
+    width: number;
+    color: string;
+  };
 }
 
 export function Disc({ disc, ...rest }: Props) {
   return (
     <button
       {...rest}
-      className="h-4 bg-red-500 rounded ring-1 ring-zinc-800 cursor-move disabled:cursor-not-allowed"
-      style={{ width: disc * 32 }}
+      className={`h-4 ${disc.color} rounded ring-1 ring-zinc-800 cursor-move disabled:cursor-not-allowed`}
+      style={{ width: disc.width }}
     />
   );
 }

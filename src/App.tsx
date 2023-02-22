@@ -2,19 +2,43 @@ import React, { useState } from "react";
 import { Tower } from "./components/Tower";
 import { Disc } from "./components/Disc";
 
-const INITIAL_STATE = [[1, 2, 3, 4, 5], [], []];
+const SIZE = 5;
+
+const generateTowers = (discsPerTower: number) => {
+  const BASE_WIDTH = 32;
+
+  const colorMap: Record<number, string> = {
+    1: "bg-red-100",
+    2: "bg-red-200",
+    3: "bg-red-300",
+    4: "bg-red-400",
+    5: "bg-red-500",
+    6: "bg-red-600",
+  };
+
+  const generateDiscs = (howMany: number) =>
+    Array.from({ length: howMany }).map((_, idx) => {
+      const id = idx + 1;
+      const color = colorMap[id];
+
+      return {
+        id,
+        width: id * BASE_WIDTH,
+        color,
+      };
+    });
+  return [[...generateDiscs(discsPerTower)], [], []];
+};
 
 function App() {
   const [moves, setMoves] = useState(0);
-  const [towers, setTowers] = useState([
-    ...INITIAL_STATE.map((t) => t.slice()),
-  ]);
+  const [towers, setTowers] = useState(() => generateTowers(SIZE));
   const [isOver, setIsOver] = useState<number | undefined>();
   const [error, setError] = useState<number | undefined>();
 
   function handleReset() {
     setMoves(0);
-    setTowers([...INITIAL_STATE.map((t) => t.slice())]);
+    setTowers(() => generateTowers(SIZE));
   }
 
   function handleOnDragStart(e: React.DragEvent<HTMLButtonElement>) {
@@ -23,16 +47,12 @@ function App() {
 
     e.dataTransfer.setData("disc", disc);
     e.dataTransfer.setData("tower", tower);
-
-    console.log("drag", disc, "from tower", tower);
   }
 
   function handleOnDrop(e: React.DragEvent<HTMLDivElement>) {
     const disc = e.dataTransfer.getData("disc");
     const fromTower = e.dataTransfer.getData("tower");
     const toTower = e.currentTarget.dataset.tower!;
-
-    console.log("drop", disc, "from tower", fromTower, "to tower", toTower);
 
     swapDiscs(+disc, +fromTower, +toTower);
   }
@@ -42,18 +62,19 @@ function App() {
 
     const isOverTower = e.currentTarget.dataset.tower!;
     setIsOver(+isOverTower);
-    console.log("over tower", isOverTower);
   }
 
-  function swapDiscs(disc: number, fromTower: number, toTower: number) {
+  function swapDiscs(discId: number, fromTower: number, toTower: number) {
     if (isWow) return;
 
     const origin = towers[fromTower];
     const target = towers[toTower];
 
+    const disc = origin.find((d) => (d.id = discId));
+
     const targetTopDisc = target[0];
 
-    if (!!targetTopDisc && targetTopDisc < disc) {
+    if (!!targetTopDisc && targetTopDisc.width < disc!.width) {
       setError(toTower);
 
       setTimeout(() => {
@@ -62,7 +83,7 @@ function App() {
     } else {
       const discToSwap = origin.shift();
 
-      if (discToSwap) target.unshift(disc);
+      if (discToSwap) target.unshift(disc!);
 
       setTowers((currentTowers) => {
         currentTowers[toTower] = target;
@@ -75,9 +96,7 @@ function App() {
     setMoves((m) => m + 1);
   }
 
-  const isWow = towers
-    .slice(1)
-    .some((t) => t.length === INITIAL_STATE[0].length);
+  const isWow = towers.slice(1).some((t) => t.length === SIZE);
 
   return (
     <div className="h-screen w-screen bg-zinc-900 text-gray-200 flex flex-col items-center gap-10">
@@ -121,9 +140,9 @@ function App() {
           >
             {tower.map((disc, discIdx) => (
               <Disc
-                key={disc}
+                key={disc.id}
                 disc={disc}
-                data-disc={disc}
+                data-disc={disc.id}
                 data-tower={towerIdx}
                 disabled={discIdx !== 0}
                 draggable={discIdx === 0}
